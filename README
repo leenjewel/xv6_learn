@@ -1,35 +1,50 @@
-##学习xv6
+xv6 is a re-implementation of Dennis Ritchie's and Ken Thompson's Unix
+Version 6 (v6).  xv6 loosely follows the structure and style of v6,
+but is implemented for a modern x86-based multiprocessor using ANSI C.
 
-xv6是由麻省理工学院(MIT)为操作系统工程的课程（代号6.828）,开发的一个教学目的的操作系统。Xv6是在x86处理器上(x即指x86)用ANSI标准C重新实现的Unix第六版(Unix V6，通常直接被称为V6)。
+ACKNOWLEDGMENTS
 
-更为详细的介绍可以参看：
+xv6 is inspired by John Lions's Commentary on UNIX 6th Edition (Peer
+to Peer Communications; ISBN: 1-57398-013-7; 1st edition (June 14,
+2000)). See also http://pdos.csail.mit.edu/6.828/2012/v6.html, which
+provides pointers to on-line resources for v6.
 
-[百度百科上关于 xv6 的介绍](http://baike.baidu.com/view/4715931.htm?fr=aladdin)
+xv6 borrows code from the following sources:
+    JOS (asm.h, elf.h, mmu.h, bootasm.S, ide.c, console.c, and others)
+    Plan 9 (entryother.S, mp.h, mp.c, lapic.c)
+    FreeBSD (ioapic.c)
+    NetBSD (console.c)
 
-[维基百科上关于 xv6 的介绍](https://en.wikipedia.org/wiki/Xv6)
+The following people have made contributions:
+    Russ Cox (context switching, locking)
+    Cliff Frey (MP)
+    Xiao Yu (MP)
+    Nickolai Zeldovich
+    Austin Clements
 
-[xv6 的官网](http://pdos.csail.mit.edu/6.828/2012/xv6.html)
+In addition, we are grateful for the patches contributed by Greg
+Price, Yandong Mao, and Hitoshi Mitake.
 
-这个代码库的 master 上是从 xv6 官方代码库直接 clone 的代码
+The code in the files that constitute xv6 is
+Copyright 2006-2012 Frans Kaashoek, Robert Morris, and Russ Cox.
 
-```git
-git clone git://pdos.csail.mit.edu/xv6/xv6.git
-```
+ERROR REPORTS
 
-代码库的 learn 分支则是我在学习 xv6 代码时一边学一边在源码文件上增加了自己的理解和学习笔记作为注释。
+If you spot errors or have suggestions for improvement, please send
+email to Frans Kaashoek and Robert Morris (kaashoek,rtm@csail.mit.edu). 
 
-###注意：
+BUILDING AND RUNNING XV6
 
-由于 learn 分支上的 xv6 代码，特别时汇编文件被我增加了注释，目前无法顺利编译，后续我可能会解决这个问题。如果向编译 xv6 一睹其芳容的各位，建议编译我这个代码库的 master 或者直接 clone 官方代码库的代码编译。
+To build xv6 on an x86 ELF machine (like Linux or FreeBSD), run "make".
+On non-x86 or non-ELF machines (like OS X, even on x86), you will
+need to install a cross-compiler gcc suite capable of producing x86 ELF
+binaries.  See http://pdos.csail.mit.edu/6.828/2012/tools.html.
+Then run "make TOOLPREFIX=i386-jos-elf-".
 
-###笔记：
+To run xv6, you can use the Bochs or QEMU PC simulators. Bochs makes
+debugging easier, but QEMU is much faster. To run in Bochs, run "make
+bochs" and then type "c" at the bochs prompt. To run in QEMU, run
+"make qemu".
 
-除了会在 xv6 的源代码上增加注释以外，我还会陆陆续续在[我的个人 Blog](http://leenjewel.github.io)上写一些列的文章来总结我的 xv6 学习过程。
-
-###2014年7月24日 第 1 次学习：
-
-如何通过 804x 键盘控制器打卡 A20 门进入保护模式。主要笔记文件：
-
-```
-bootasm.S
-```
+To create a typeset version of the code, run "make xv6.pdf".  This
+requires the "mpage" utility.  See http://www.mesa.nl/pub/mpage/.
