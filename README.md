@@ -33,3 +33,11 @@ git clone git://pdos.csail.mit.edu/xv6/xv6.git
 ```
 bootasm.S
 ```
+
+###2014年7月25日 第 2 次学习：
+
+关于 GDT 表和 GDT 表项的建立。主要笔记文件：
+
+```
+bootasm.S
+```
