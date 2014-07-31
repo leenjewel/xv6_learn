@@ -61,6 +61,12 @@ seta20.2:
   # Complete transition to 32-bit protected mode by using long jmp
   # to reload %cs and %eip.  The segment descriptors are set up with no
   # translation, so that the mapping is still the identity mapping.
+  # 
+  # 到这里已经进入保护模式了，这里做代码跳转的时候就变成了基于分段式的跳转
+  # 分段式跳转 ljmp  段选择子,  段内偏移量
+  # 在 GDT 中我们的代码段下标是 1 ，所以这里段选择子是 1 << 3 = 0x0008 = 0000 0000 0000 1000
+  # 在 16 位的段选择子中前 13 位是 GDT 段表下标，这里前 13 位值是 1 代表选择代码段
+  # 而我们的代码段是从 0 开始到 4GB 结尾的，所以这里偏移量不用做转换，还是原偏移即可
   ljmp    $(SEG_KCODE<<3), $start32
 
 .code32  # Tell assembler to generate 32-bit code now.
