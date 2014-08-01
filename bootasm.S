@@ -52,9 +52,22 @@ seta20.2:
   # Switch from real to protected mode.  Use a bootstrap GDT that makes
   # virtual addresses map directly to physical addresses so that the
   # effective memory map doesn't change during the transition.
-  lgdt    gdtdesc
-  movl    %cr0, %eax
-  orl     $CR0_PE, %eax
+  # 控制寄存器 CR0 为 32 位寄存器，和保护模式相关的控制位
+  # **注意大小端**
+  # 
+  # |31|--------30~1--------| 0|
+  # ----------------------------
+  # |PG|--------------------|PE|
+  # PG : 开启分页式
+  # PE : 开启保护模式
+  # CR0_PE 在 mmu.h 中定义的 32 位用于控制 CR0
+  # CR0_PE : 0x00000001
+  # | 0|-------都是0--------| 1|
+  # CR0_PE 与 cr0 做或运算保证 PG = 0, PE = 1
+  # 至此开启了保护模式，基于分段式，没有打开分页式
+  lgdt    gdtdesc          # 先把 GDT 告诉 CPU
+  movl    %cr0, %eax       # 把 CR0 寄存器的值复制给 eax 寄存器
+  orl     $CR0_PE, %eax    # 与 CR0_PE 做或运算，打开保护模式
   movl    %eax, %cr0
 
 //PAGEBREAK!
@@ -64,7 +77,7 @@ seta20.2:
   # 
   # 到这里已经进入保护模式了，这里做代码跳转的时候就变成了基于分段式的跳转
   # 分段式跳转 ljmp  段选择子,  段内偏移量
-  # 在 GDT 中我们的代码段下标是 1 ，所以这里段选择子是 1 << 3 = 0x0008 = 0000 0000 0000 1000
+  # 在 GDT 中我们的代码段下标是 1 ，所以这里段选择子是 1 << 3 = 0000 0000 0000 1000
   # 在 16 位的段选择子中前 13 位是 GDT 段表下标，这里前 13 位值是 1 代表选择代码段
   # 而我们的代码段是从 0 开始到 4GB 结尾的，所以这里偏移量不用做转换，还是原偏移即可
   ljmp    $(SEG_KCODE<<3), $start32
@@ -72,13 +85,17 @@ seta20.2:
 .code32  # Tell assembler to generate 32-bit code now.
 start32:
   # Set up the protected-mode data segment registers
-  movw    $(SEG_KDATA<<3), %ax    # Our data segment selector
-  movw    %ax, %ds                # -> DS: Data Segment
-  movw    %ax, %es                # -> ES: Extra Segment
-  movw    %ax, %ss                # -> SS: Stack Segment
-  movw    $0, %ax                 # Zero segments not ready for use
-  movw    %ax, %fs                # -> FS
-  movw    %ax, %gs                # -> GS
+  # 像上面讲 ljmp 时所说的，这时候已经在保护模式下了
+  # 数据段在 GDT 中的下标是 2，所以这里数据段的段选择子是 2 << 3 = 0000 0000 0001 0000
+  # 这 16 位的段选择子中的前 13 位是 GDT 段表下标，这里前 13 位的值是 2 代表选择了数据段
+  # 这里将 3 个数据段寄存器都赋值成数据段段选择子的值
+  movw    $(SEG_KDATA<<3), %ax    # Our data segment selector  段选择子赋值给 ax 寄存器
+  movw    %ax, %ds                # -> DS: Data Segment        初始化数据段寄存器
+  movw    %ax, %es                # -> ES: Extra Segment       初始化扩展段寄存器
+  movw    %ax, %ss                # -> SS: Stack Segment       初始化堆栈段寄存器
+  movw    $0, %ax                 # Zero segments not ready for use  ax 寄存器清零
+  movw    %ax, %fs                # -> FS                      辅助寄存器清零
+  movw    %ax, %gs                # -> GS                      辅助寄存器清零
 
   # Set up the stack pointer and call into C.
   movl    $start, %esp
@@ -94,6 +111,7 @@ start32:
 spin:
   jmp     spin
 
+# **注意大小端**
 # Bootstrap GDT
 # 每个 GDT 项 8 字节
 #
