@@ -51,7 +51,7 @@ seta20.2:
 
   # Switch from real to protected mode.  Use a bootstrap GDT that makes
   # virtual addresses map directly to physical addresses so that the
-  # effective memory map doesn't change during the transition.
+  # effective memory map does not change during the transition.
   # 控制寄存器 CR0 为 32 位寄存器，和保护模式相关的控制位
   # **注意大小端**
   # 
@@ -101,7 +101,7 @@ start32:
   movl    $start, %esp
   call    bootmain
 
-  # If bootmain returns (it shouldn't), trigger a Bochs
+  # If bootmain returns (it should not), trigger a Bochs
   # breakpoint if running under Bochs, then loop.
   movw    $0x8a00, %ax            # 0x8a00 -> port 0x8a00
   movw    %ax, %dx
