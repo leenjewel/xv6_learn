@@ -98,7 +98,7 @@ start32:
   movw    %ax, %gs                # -> GS                      辅助寄存器清零
 
   # Set up the stack pointer and call into C.
-  movl    $start, %esp
+  movl    $start, %esp            # 栈顶被设置为 0x7C00 处
   call    bootmain
 
   # If bootmain returns (it should not), trigger a Bochs

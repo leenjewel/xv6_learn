@@ -22,7 +22,7 @@ bootmain(void)
   void (*entry)(void);
   uchar* pa;
 
-  elf = (struct elfhdr*)0x10000;  // scratch space
+  elf = (struct elfhdr*)0x10000;  // 从 0xa0000 到 0xfffff 的物理地址范围属于设备空间，所以内核放置在 0x10000 处开始
 
   // 从内核所在硬盘位置读取一内存页 4kb 数据
   readseg((uchar*)elf, 4096, 0);
